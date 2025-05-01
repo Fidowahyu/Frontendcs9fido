@@ -14,19 +14,22 @@ export default function ItemList() {
         setLoading(true);
         setError(null);
 
-        const apiUrl = import.meta.env.VITE_API_URL
-          ? `${import.meta.env.VITE_API_URL}/item`
-          : 'https://backendcs9fido.vercel.app/item';
+        // Hindari double slash dengan trimTrailingSlash
+        const baseApi = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || 'https://backendcs9fido.vercel.app';
+        const apiUrl = `${baseApi}/item`;
 
-        const response = await axios.get(apiUrl);
+        const response = await axios.get(apiUrl, {
+          // Penting: pastikan header CORS diterima
+          withCredentials: false
+        });
 
         let apiItems = [];
         if (response.data && Array.isArray(response.data.payload)) {
           apiItems = response.data.payload;
-          setApiItemsCount(response.data.payload.length);
+          setApiItemsCount(apiItems.length);
         } else if (Array.isArray(response.data)) {
           apiItems = response.data;
-          setApiItemsCount(response.data.length);
+          setApiItemsCount(apiItems.length);
         } else {
           throw new Error('Invalid response structure. Expected an array or {payload: array}');
         }
@@ -45,7 +48,7 @@ export default function ItemList() {
         if (error.response) {
           setError(`Server error: ${error.response.status} - ${error.response.statusText}`);
         } else if (error.request) {
-          setError('Network error: Unable to reach the server. Please check your connection.');
+          setError('Network error: Unable to reach the server. Please check your connection or CORS.');
         } else {
           setError(`Error: ${error.message}`);
         }
@@ -57,15 +60,13 @@ export default function ItemList() {
     getProducts();
   }, []);
 
-  if (loading) {
-    return <div className="p-6">Loading items...</div>;
-  }
+  if (loading) return <div className="p-6">Loading items...</div>;
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="text-red-500 mb-4">{error}</div>
-        <div>Try checking your server connection or API endpoint configuration.</div>
+      <div className="p-6 text-red-500">
+        <div>{error}</div>
+        <div className="text-sm text-gray-500 mt-2">Check your backend CORS settings and API URL.</div>
       </div>
     );
   }
@@ -74,7 +75,7 @@ export default function ItemList() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Daftar Item</h1>
       <p className="mb-4">Showing {items.length} items ({apiItemsCount} from API)</p>
-      
+
       {items.length === 0 ? (
         <div className="text-center p-6 bg-gray-100 rounded">
           No items found. Please add items through your API.
@@ -86,7 +87,7 @@ export default function ItemList() {
               <Link to={`/items/${item.id}`} className="block">
                 <div className="h-64 flex items-center justify-center mb-4">
                   <img
-                    src={item.image || 'https://via.placeholder.com/150'}
+                    src={item.image}
                     alt={item.name}
                     className="max-w-full max-h-full object-contain rounded"
                     onError={(e) => {
