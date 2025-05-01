@@ -16,7 +16,7 @@ export default function ItemList() {
 
         const apiUrl = import.meta.env.VITE_API_URL
           ? `${import.meta.env.VITE_API_URL}/item`
-          : 'http://localhost:3000/item';
+          : 'https://backendcs9fido.vercel.app/item';
 
         const response = await axios.get(apiUrl);
 

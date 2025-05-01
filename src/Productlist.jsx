@@ -9,7 +9,7 @@ export default function ProductList() {
     const getProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://backendcs9fido.vercel.app//item`);
+        const response = await axios.get(`https://backendcs9fido.vercel.app/item`);
         console.log(response);
         setProducts(response.data.payload.slice(0, 8));
       } catch (error) {

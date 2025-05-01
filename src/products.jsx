@@ -15,7 +15,7 @@ export default function Products() {
       return;
     }
 
-    fetch('http://localhost:3000/products', {
+    fetch('https://backendcs9fido.vercel.app/item', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
